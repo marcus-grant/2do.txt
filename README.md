@@ -24,6 +24,55 @@ Initially the command line is going to be relatively simple. Just using `STDIN` 
 First a `TODO.txt` parser should be created. This will have to conform to the rules of [`TODO.txt`][01] format. This will be a good place to conform to Test Driven Development practices, and using a [Go unit testing package][12]. Then a file writer/updater will need to be created to update the file. Also, some kind of local configuration file should be used so entering the text file location won't be necessary.
 
 
+A Simple Improvement to the TODO.txt Specification
+--------------------------------------------------
+
+Due dates for tasks are at least as important as the priority of a task. It certainly is more important than the creation date of a task, when sorting incomplete tasks. The way the specification is defined right now, **completion** dates are only supposed to appear in front of a **creation** date when a task is completed. This means that incomplete tasks will be plaintext sorted by priority first and creation dates second. This isn't terribly useful when planing out tasks. A small change to the specification would change this.
+
+### Rule 2: A task's creation date may optionally appear directly after priority and a space
+
+### Rule 3: A task's due date is the first of two dates appearing directly after priority or as the first two tags on a line
+
+* A due date takes the form of `YYYY-MM-DD`, and is followed by a space, just like a creation date.
+* The second of two adjacent dates after a priority, occurring either first in the line, or directly after a priority and space is now the **creation date**
+* The first of the same two dates after a priority, occurring either first in the line, or directly after a priority and space is now the **due date**
+* With two adjacent dates as either the first text in a line or after a priority, the **creation** date specified in **Rule 2** is now the second date.
+* This allows tasks to first be sorted by a priority *if it exists*, then by creation *if it exists*, then finally by due date *if it exists*.
+* Tasks with **creation**, but not **due** dates will appear before tasks that have **due** dates, which will call attention to tasks that require scheduling.
+* If a task was specified without a **creation** date and are later given **due** dates will be given **creation** dates of the day the **due** is given.
+* This creates the possibility that **due** dates chronologically precedes **creation** dates
+  * It should be up to the developer to decide how to handle this:
+
+These tasks have due dates:
+
+```
+2017-05-11 2017-05-14 +home-improvement @tidying Clean toilet
+(A) 2018-03-28 2018-03-29 Conquer the world @self-improvement
+```
+
+These tasks do not have due dates:
+
+```
+2017-05-11 Buy train tickets going anywhere +travel @anywhere
+(B) 2017-12-31 Party like it's 2018 @nye
+(A) Learn to moonwalk 2016-04-23 2016-04-14 +dancing
+```
+
+### Rule 4: Same as previous rule 2
+
+### Rule 2 (in completed tasks): The date of completion appears directly after the x, separated by a space.
+
+* The **completion** date must appear directly after an `x` & a space
+* The optional second date appears directly after the **completion** date and represents the **creation** date, if there is one.
+* The **due** date is no longer important as the **completion** and **creation** date
+* So the first date which could've been either a **due** date or a **creation** date before being completed, now becomes the **completion** date.
+* If a second date appears directly after the **completion** date, it is the **creation** date.
+* If a **due** date was the first date before the task is completed, it is now removed entirely because it is no longer necessary to track.
+* If the due date should be remembered even when completed, put it in a **key:value** tag, (e.g. `due:2014-09-03`).
+* Same as before, priority is no longer tracked, and so is removed.
+* If the priority should be remembered after completion, store it in a **key:value** tag (e.g. `pri:A`).
+
+
 API Server
 ----------
 
